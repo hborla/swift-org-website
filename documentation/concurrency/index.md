@@ -20,6 +20,14 @@ Mutable state can only be accessed from one isolation domain at a time. You can 
 
 Tasks are the basic unit of concurrency; multiple tasks may run concurrently with each other, but each individual task only executes one function at a time. Tasks can either be isolated to an actor, or they can be non-isolated. All tasks have access to their local state, task-local values, and global-nonisolated state, and isolated tasks also have access to actor-isolated state.
 
+### The run-time-to-compile-time synchronization shift
+
+If you have worked with concurrency before, the concept of mutually exclusive access to mutable state will be familar. But, Swift's means of mutually exclusive access is in stark contrast to what you may have used in the past.
+
+Synchronization primitives such as locks, semaphores, and queues are all runtime constructs that require careful use by the developer for correct behavior. Swift's isolation mechanism shifts this to compile time. You should not underestimate the impact this can have to your existing intuition.
+
+This goes double if you have worked with other languages that use the "async/await" keywords, or actor concepts. Previous experiences here might be even more confusing.
+
 ### Isolation domains
 
 All functions and variables have a static isolation domain that is understood by the compiler. The isolation of a declaration can be:
