@@ -64,9 +64,11 @@ An entire type can be isolated to a global actor. When a type is isolated to a g
 
 Global variables in a `main.swift` file are implicit isolated to `@MainActor`, and `static func main` is implicitly isolated to `@MainActor`.
 
-#### Switching between isolation domains
+#### Suspension points
 
-A task can switch between isolation domains when a function in one isolation domain calls a function in a different isolation domain. When a call crosses an isolation boundary, that call must be made asynchronously, because the destination isolation domain might be busy running other tasks. The task will be suspended until the destination isolation domain is free to run the function.
+A task can switch between isolation domains when a function in one isolation domain calls a function in a different isolation domain. When a call crosses an isolation boundary, that call must be made asynchronously, because the destination isolation domain might be busy running other tasks. In that case, the task will be suspended until the destination isolation domain is free to run the function. A suspension point does not block, meaning the current isolation domain (and the thread it is currently running on) are freed up to perform other work. The Swift concurrency runtime expects code to never block on future work, allowing the system to always make forward progress, which eliminates a common source of deadlocks in concurrent code.
+
+Potential suspension points are marked in source code with the `await` keyword. The `await` keyword indicates that the call might suspend at runtime; `await` does not force a suspension point, and the function being called might only suspend under certain dynamic conditions, so it's possible that a call marked with `await` doesn't actually suspend. In any case, explicitly marking potential suspension points is important in concurrent code because suspensions indicate the end of a critical section. Because the current isolation domain is freed up to perform other work, actor-isolated state may change across a suspension point. As such, your critical sections should always be written in synchronous code.
 
 ### Passing data across isolation boundaries
 
