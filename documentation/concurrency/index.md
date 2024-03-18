@@ -28,6 +28,8 @@ All functions and variables have a static isolation domain that is understood by
 2. Isolated to an actor value
 3. Isolated to a global actor
 
+When a declaration is isolated to an actor or global actor, it means the declaration can only be called or accessed from code running on that actor. Non-isolated declarations are not isolated to a specific actor, and therefore cannot acccess any actor-isolated state. Synchronous functions and variables that are non-isolated can be called or accessed from any isolation domain. Non-isolated async functions always run on the generic executor that is not associated with any actor. When a non-isolated async function is called from an actor-isolated context, the call crosses an isolation boundary. When called from another non-isolated context, the call does not cross an isolation boundary.
+
 By default, functions and properties of non-isolated types are also non-isolated. A function or variable can also be explicitly non-isolated with the `nonisolated` keyword. A function or property that is `nonisolated` is safe to access from any isolation domain because it cannot access any actor-isolated state in its implementation.
 
 All stored instance properties of an actor are isolated to the enclosing actor instance. Functions are isolated to an actor instance if they accept an `isolated` parameter, including the `self` parameter to actor instance methods:
