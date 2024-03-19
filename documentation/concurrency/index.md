@@ -174,3 +174,27 @@ To enable complete concurrency checking in an Xcode project, set the "Strict Con
 
 SWIFT_STRICT_CONCURRENCY = complete;
 ```
+
+## Addressing data-race safety issues
+
+### The approach
+
+The recommended approach for addressing data-race safety issues in your project is in two phases:
+
+1. First, express what is true in your code today using the annotations provided in the language.
+2. Once all warnings are resolved, then look for opportunity to refactor parts of your code to take greater advantage of data-race safety.
+
+Enabling complete concurrency checking in a module can yield many data-race safety issues reported by the compiler. Resist the urge to refactor your code to address these issues! It's beneficial to minimize the amount of change necessary to enable complete concurrency checking, and use any unsafe opt-outs you applied as an indication of follow-on refactoring opportunities to introduce a safer isolation mechanism such as an actor.
+
+For example, if all code in your project runs on the main actor today, you should migrate to complete concurrency checking primarily by annotating code with `@MainActor`. Once complete concurrency checking is enabled, you can use those annotations to identify places where code is running on the main actor today, but doesn't need to be, so you can strategically introduce more concurrency.
+
+### Categories of errors
+
+There are a few different categories of data-race safety errors that you'll encounter when migrating to complete concurrency checking:
+
+1. Concurrent access on argument values, result values, and closure captures
+2. Unsafe global and static variables
+3. Isolated method satisfying a non-isolated protocol requirement, or overriding a non-isolated superclass method
+4. Calling an isolated method in a synchronous non-isolated context, or without `await`
+5. Isolated default stored property values in a non-isolated context
+
